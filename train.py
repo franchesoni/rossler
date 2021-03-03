@@ -20,7 +20,7 @@ if __name__ == '__main__':
     criterion = torch.nn.MSELoss()
 
     data, meta = load_data()
-    dataloader = FastTensorDataLoader(data, dataset_len=100000, batch_size=32, timesteps=2, shuffle=True)
+    dataloader = FastTensorDataLoader(data, dataset_len=100000, batch_size=32, timesteps=2, shuffle=True, pre=True)  # use pre=False if it takes too much memrory to load
 
     running_losses = []
     for epoch in range(n_epochs):

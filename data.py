@@ -10,13 +10,14 @@ from rossler_map import RosslerMap
 
 class FastTensorDataLoader:
     def __init__(
-        self, datatensor, dataset_len=100, batch_size=32, timesteps=2, shuffle=True
+        self, datatensor, dataset_len=100, batch_size=32, timesteps=2, shuffle=True, pre=True,
     ):
         self.tensors = datatensor  # (n_series, Niter, dim)
         self.dataset_len = dataset_len  # number of points of this dataset
         self.batch_size = batch_size
         self.timesteps = timesteps  # time dimension of output
         self.shuffle = shuffle
+        self.pre = pre  # preshuffle
 
         # Calculate # batches
         n_batches, remainder = divmod(self.dataset_len, self.batch_size)
@@ -25,7 +26,7 @@ class FastTensorDataLoader:
         self.n_batches = n_batches
 
         if (
-            self.shuffle
+            self.shuffle and self.pre
         ):  # select a random start position and a random series for each element on each batch
             self.idxs = np.random.randint(
                 0,
@@ -43,9 +44,18 @@ class FastTensorDataLoader:
     def __next__(self):
         if self.i >= self.dataset_len:
             raise StopIteration
-        if self.shuffle:
+        if self.shuffle and self.pre:
             idx = self.idxs[self.i]
             series_idx = self.series_idxs[self.i]
+        elif self.shuffle:
+            idx =  np.random.randint(
+                0,
+                self.tensors.shape[1] - self.timesteps,
+                size=(self.batch_size),
+            )
+            series_idx = np.random.randint(
+                0, self.tensors.shape[0], size=(self.batch_size)
+            )
         else:
             idx = self.i // self.dataset_len
             series_idx = np.arange(self.batch_size) // self.tensors.shape[0]
@@ -112,7 +122,7 @@ def load_data(train_dir="train_data", dirname=None):
 
 SEED = 42
 n_series = 11
-Niter = 1000000
+Niter = 10000
 delta_t = 0.01
 if __name__ == "__main__":
     np.random.seed(SEED)
