@@ -1,0 +1,49 @@
+data.py
+    description:
+        Script for creating data and defining the dataloader.
+
+        The data creation is as follows. From the given initial point, we add
+        noise to get `n_series` different initial points. We generate from each
+        of those noisy starting points a time series with `Niter` points using
+        a time step `delta_t`.
+
+        The dataloader should be preferently used with `shuffled = True`. It 
+        randomly samples sequences consisting of `timesteps` timesteps (note
+        that we will use the last one as target) to form batches of 
+        `batch_size`. The total number of sequeneces is `dataset_len`.
+        Note that calling the same generator again will yield different results
+        unless a random seed is used beforehand. The random sampling is done
+        both in time dimension and in the series dimension (if there are more
+        than one time series) 
+
+    functions:
+        - use `create_data` to create data from time series starting from a
+        noisy initial point
+        - use `load_data` to load the last data created
+        - use `FastTensorDataLoader` as a dataloader (for batch in dataloader:) 
+
+train.py:
+    description:
+        Simple pytorch training loop. Define a model, number of epochs, 
+        optimizer, criterion, then train and save.
+        The data is the last data generated. However, the dataloader can be
+        configured. A visualization flag shows a plot of the loss vs epochs at
+        the end of the training (not beafutiful nor recommended).
+        It has no device configuration yet.
+
+
+pipeline:
+    run `data.py` directly to create new data with the configuration you want
+    run `train.py` directly to save a new trained model
+    run `time_series2.py` directly to create and save the trajectory using the
+        trained model (it is just an iterator). Currently it only works for
+        `delta_t = 1e-2`. This takes around 2 min in my machine.
+        It also runs the simulated real model.
+    run `analyze.py` to analyze the created time series. Add any functions you
+        like!
+
+next steps:
+    - train a good model
+
+    
+    
